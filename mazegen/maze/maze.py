@@ -2,9 +2,6 @@
 import random
 import pathlib
 
-# Create output folder if doesn't already exist
-pathlib.Path('./output').mkdir(exist_ok=True)
-
 EMPTY = '.'
 MARK = '@'
 WALL = '#'
@@ -53,6 +50,9 @@ def print_maze(maze, HEIGHT, WIDTH, mark_x=None, mark_y=None):
 
 def save_maze(maze, HEIGHT, WIDTH):
     """ Turn maze into string then save to file """
+
+    # Create output folder if doesn't already exist
+    pathlib.Path('./output').mkdir(exist_ok=True)
     text_maze = ""
     for y in range(HEIGHT):
         x_str = ""

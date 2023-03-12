@@ -1,6 +1,6 @@
 """ Flask API to generate mazes from a front end """
 from flask import Flask, request
-from mazegen.maze import gen_maze
+from maze.maze import gen_maze
 
 app = Flask(__name__)
 
