@@ -40,7 +40,8 @@ def maze_to_array(maze, HEIGHT, WIDTH):
 
 def print_maze(maze, HEIGHT, WIDTH, mark_x=None, mark_y=None):
     """ Display maze structure from maze arg. mark_x and mark_y are
-    co-ords of current '@' location as the maze is generated """
+    co-ords of current '@' location as the maze is generated
+    This is basically only for debugging """
     for y in range(HEIGHT):
         for x in range(WIDTH):
             if mark_x == x and mark_y == y:
@@ -70,8 +71,6 @@ def visit(x, y, has_visited, maze, HEIGHT, WIDTH):
     spaces. This function backtracks when the mark reaches a dead end """
 
     maze[(x, y)] = EMPTY
-    print_maze(maze, HEIGHT, WIDTH, x, y)  # Display maze as it's generated
-    print('\n\n')
 
     while True:
         # Check which neighbouring spaces adjacent to current position have not been
