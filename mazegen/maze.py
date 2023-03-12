@@ -26,6 +26,23 @@ for x in range(WIDTH):
     for y in range(HEIGHT):
         maze[(x, y)] = WALL
 
+def gen_maze(WIDTH, HEIGHT):
+    """ Generate maze and return result """
+    CORNERS = [(1, 1), (WIDTH - 2, 1), (WIDTH - 2, HEIGHT - 2), (1, HEIGHT - 2)]
+
+    # Create starting point for maze
+    maze = {}
+    for x in range(WIDTH):
+        for y in range(HEIGHT):
+            maze[(x, y)] = WALL
+
+    starting_corner = random.choice(CORNERS)
+    has_visited = [starting_corner]  # Pick a random corner to start in
+    visit(starting_corner[0], starting_corner[1], has_visited, maze)
+    return maze
+
+
+
 
 def print_maze(maze, mark_x=None, mark_y=None):
     """ Display maze structure from maze arg. mark_x and mark_y are
@@ -54,7 +71,7 @@ def save_maze(maze):
     f.close()
 
 
-def visit(x, y):
+def visit(x, y, has_visited, maze):
     """ Carve out empty space in the maze at x,y then recursively move to neighbouring unvisited
     spaces. This function backtracks when the mark reaches a dead end """
 
@@ -106,12 +123,4 @@ def visit(x, y):
 
             has_visited.append((next_x, next_y))  # Mark next space as visited
             # Recursively visit next space
-            visit(next_x, next_y)
-
-
-has_visited = [random.choice(CORNERS)]  # Pick a random corner to start in
-visit(1, 1)
-
-# Display and save final result to file
-print_maze(maze)
-save_maze(maze)
+            visit(next_x, next_y, has_visited, maze)
