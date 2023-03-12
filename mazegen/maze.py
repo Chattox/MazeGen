@@ -5,26 +5,11 @@ import pathlib
 # Create output folder if doesn't already exist
 pathlib.Path('./output').mkdir(exist_ok=True)
 
-# Declare vars
-# WIDTH and HEIGHT must be odd, min: 3, max: 99
-WIDTH = 15
-HEIGHT = 15
-# Check WIDTH and HEIGHT meet requirements
-assert WIDTH % 2 == 1 and HEIGHT % 2 == 1
-assert WIDTH <= 99 and HEIGHT <= 99
-assert WIDTH >= 3 and HEIGHT >= 3
-
 EMPTY = '.'
 MARK = '@'
 WALL = '#'
 NORTH, EAST, SOUTH, WEST = 'n', 'e', 's', 'w'
-CORNERS = [(1, 1), (WIDTH - 1, 1), (WIDTH - 1, HEIGHT - 1), (1, HEIGHT - 1)]
 
-# Create starting point for maze
-maze = {}
-for x in range(WIDTH):
-    for y in range(HEIGHT):
-        maze[(x, y)] = WALL
 
 def gen_maze(WIDTH, HEIGHT):
     """ Generate maze and return result """
@@ -38,13 +23,22 @@ def gen_maze(WIDTH, HEIGHT):
 
     starting_corner = random.choice(CORNERS)
     has_visited = [starting_corner]  # Pick a random corner to start in
-    visit(starting_corner[0], starting_corner[1], has_visited, maze)
-    return maze
+    visit(starting_corner[0], starting_corner[1], has_visited, maze, HEIGHT, WIDTH)
+    return maze_to_array(maze, HEIGHT, WIDTH)
 
 
+def maze_to_array(maze, HEIGHT, WIDTH):
+    """ Convert maze to array for returning via API """
+    maze_arr = []
+    for y in range(HEIGHT):
+        x_arr = []
+        for x in range(WIDTH):
+            x_arr.append(maze[(x, y)])
+        maze_arr.append(x_arr)
+    return maze_arr
 
 
-def print_maze(maze, mark_x=None, mark_y=None):
+def print_maze(maze, HEIGHT, WIDTH, mark_x=None, mark_y=None):
     """ Display maze structure from maze arg. mark_x and mark_y are
     co-ords of current '@' location as the maze is generated """
     for y in range(HEIGHT):
@@ -56,7 +50,7 @@ def print_maze(maze, mark_x=None, mark_y=None):
         print()
 
 
-def save_maze(maze):
+def save_maze(maze, HEIGHT, WIDTH):
     """ Turn maze into string then save to file """
     text_maze = ""
     for y in range(HEIGHT):
@@ -71,12 +65,12 @@ def save_maze(maze):
     f.close()
 
 
-def visit(x, y, has_visited, maze):
+def visit(x, y, has_visited, maze, HEIGHT, WIDTH):
     """ Carve out empty space in the maze at x,y then recursively move to neighbouring unvisited
     spaces. This function backtracks when the mark reaches a dead end """
 
     maze[(x, y)] = EMPTY
-    print_maze(maze, x, y)  # Display maze as it's generated
+    print_maze(maze, HEIGHT, WIDTH, x, y)  # Display maze as it's generated
     print('\n\n')
 
     while True:
@@ -123,4 +117,4 @@ def visit(x, y, has_visited, maze):
 
             has_visited.append((next_x, next_y))  # Mark next space as visited
             # Recursively visit next space
-            visit(next_x, next_y, has_visited, maze)
+            visit(next_x, next_y, has_visited, maze, HEIGHT, WIDTH)
