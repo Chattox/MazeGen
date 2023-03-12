@@ -1,7 +1,12 @@
 """ Generate random labyrinths/mazes """
 import random
+import pathlib
+
+# Create output folder if doesn't already exist
+pathlib.Path('./output').mkdir(exist_ok=True)
 
 # Declare vars
+# WIDTH and HEIGHT must be odd
 WIDTH = 15
 HEIGHT = 15
 
@@ -27,6 +32,21 @@ def print_maze(maze, mark_x=None, mark_y=None):
             else:
                 print(maze[(x, y)], end='')
         print()
+
+
+def save_maze(maze):
+    """ Turn maze into string then save to file """
+    text_maze = ""
+    for y in range(HEIGHT):
+        x_str = ""
+        for x in range(WIDTH):
+            x_str += maze[(x, y)]
+        x_str += '\n'
+        text_maze += (x_str)
+
+    f = open("./output/maze.txt", "wt")
+    f.write(text_maze)
+    f.close()
 
 
 def visit(x, y):
@@ -86,5 +106,6 @@ def visit(x, y):
 has_visited = [(1, 1)]  # Start in the top left corner
 visit(1, 1)
 
-# Display final result
+# Display and save final result to file
 print_maze(maze)
+save_maze(maze)
