@@ -18,6 +18,7 @@ EMPTY = '.'
 MARK = '@'
 WALL = '#'
 NORTH, EAST, SOUTH, WEST = 'n', 'e', 's', 'w'
+CORNERS = [(1, 1), (WIDTH - 1, 1), (WIDTH - 1, HEIGHT - 1), (1, HEIGHT - 1)]
 
 # Create starting point for maze
 maze = {}
@@ -108,7 +109,7 @@ def visit(x, y):
             visit(next_x, next_y)
 
 
-has_visited = [(1, 1)]  # Start in the top left corner
+has_visited = [random.choice(CORNERS)]  # Pick a random corner to start in
 visit(1, 1)
 
 # Display and save final result to file
