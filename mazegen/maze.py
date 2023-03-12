@@ -6,9 +6,13 @@ import pathlib
 pathlib.Path('./output').mkdir(exist_ok=True)
 
 # Declare vars
-# WIDTH and HEIGHT must be odd
+# WIDTH and HEIGHT must be odd, min: 3, max: 99
 WIDTH = 15
 HEIGHT = 15
+# Check WIDTH and HEIGHT meet requirements
+assert WIDTH % 2 == 1 and HEIGHT % 2 == 1
+assert WIDTH <= 99 and HEIGHT <= 99
+assert WIDTH >= 3 and HEIGHT >= 3
 
 EMPTY = '.'
 MARK = '@'
@@ -100,7 +104,8 @@ def visit(x, y):
                 maze[(x - 1, y)] = EMPTY
 
             has_visited.append((next_x, next_y))  # Mark next space as visited
-            visit(next_x, next_y)  # Recursively visit next space
+            # Recursively visit next space
+            visit(next_x, next_y)
 
 
 has_visited = [(1, 1)]  # Start in the top left corner
