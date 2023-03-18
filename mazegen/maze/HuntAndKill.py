@@ -5,6 +5,7 @@ class HuntAndKill:
     def __init__(self, h, w):
         self.height = h
         self.width = w
+        self.maze = []
 
     def generate(self):
         grid = np.empty((self.height, self.width), dtype=np.int8)
@@ -19,7 +20,7 @@ class HuntAndKill:
             curr_y, curr_x = self.hunt(grid, num_trials)
             num_trials += 1
 
-        return grid
+        self.maze = grid
     
     def walk(self, grid, y, x):
         
@@ -57,3 +58,10 @@ class HuntAndKill:
 
         shuffle(neighbours)
         return neighbours
+    
+    def print_maze(self):
+        
+        for y in range(self.height):
+            for x in range(self.width):
+                print('#', end='') if self.maze[y][x] == 1 else print('.', end='')
+            print()
