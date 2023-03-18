@@ -13,5 +13,4 @@ def get_maze():
     """ Return completed maze from given height and width """
     maze = HuntAndKill(int(request.args['height']), int(request.args['width']))
     maze.generate()
-    maze.print_maze()
     return maze.export_maze()
