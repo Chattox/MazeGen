@@ -65,3 +65,20 @@ class HuntAndKill:
             for x in range(self.width):
                 print('#', end='') if self.maze[y][x] == 1 else print('.', end='')
             print()
+
+    def export_maze(self):
+        exp_maze = []
+
+        for y in range(self.height):
+            exp_maze.append([])
+            for x in range(self.width):
+                exp_maze[y].append('u')
+
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.maze[y][x] == 1:
+                    exp_maze[y][x] = '#'
+                else:
+                    exp_maze[y][x] = '.'
+        
+        return exp_maze
