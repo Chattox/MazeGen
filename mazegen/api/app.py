@@ -1,7 +1,7 @@
 """ Flask API to generate mazes from a front end """
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from maze.maze import Maze
+from maze.HuntAndKill import HuntAndKill
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -11,5 +11,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def get_maze():
     """ Return completed maze from given height and width """
-    maze = Maze(request.args['height'], request.args['width'], request.args['hasCentralRoom'])
-    return maze.gen_maze()
+    maze = HuntAndKill(int(request.args['height']), int(request.args['width']))
+    maze.generate()
+    return maze.export_maze()
