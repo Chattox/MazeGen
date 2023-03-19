@@ -2,25 +2,83 @@ import numpy as np
 from random import choice, randrange, shuffle
 
 class HuntAndKill:
-    def __init__(self, h, w):
+    def __init__(self, h, w, has_central_room):
         self.height = h
         self.width = w
+        self.has_central_room = has_central_room
         self.maze = []
 
     def generate(self):
         grid = np.empty((self.height, self.width), dtype=np.int8)
         grid.fill(1)
 
-        curr_y, curr_x = (randrange(1, self.height, 2), randrange(1, self.width, 2))
-        grid[curr_y][curr_x] = 0
+        curr_y, curr_x = 0, 0
+
+        print(self.has_central_room)
+
+        if self.has_central_room == 'true':
+            curr_y, curr_x = self.create_central_room(grid)
+            print(f"start x: {curr_x}, start y: {curr_y}")
+        else:
+            curr_y, curr_x = self.set_start_pos(grid)
+            grid[curr_y][curr_x] = 0
 
         num_trials = 0
         while (curr_y, curr_x) != (-1, -1):
             self.walk(grid, curr_y, curr_x)
-            curr_y, curr_x = self.hunt(grid, num_trials)
+            curr_y, curr_x = self.hunt(num_trials)
             num_trials += 1
 
         self.maze = grid
+
+    def set_start_pos(self, grid):
+        y, x = (randrange(1, self.height - 1, 2), randrange(1, self.width - 1, 2))
+        if grid[y][x] == 0:
+            y, x = self.set_start_pos(grid)
+        
+        return (y, x)
+
+    def create_central_room(self, grid):
+        start_x = (self.width // 5) * 2
+        start_y = (self.height // 5) * 2
+        end_x = start_x + (self.width // 5)
+        end_y = start_y + (self.height // 5)
+
+        for y in range(start_y, end_y):
+            for x in range(start_x, end_x):
+                grid[y][x] = 0
+
+        # Pick a side to create an exit
+        direction = choice(('n', 'e', 's', 'w'))
+
+        door_x = 0
+        door_y = 0
+
+        if direction == 'n':
+            door_x = self.width // 2
+            door_y = start_y - 1
+            grid[door_y][door_x] = 0
+            print(f"x: {door_x}, y: {door_y - 1}")
+            return (door_y - 1, door_x)
+        elif direction == 'e':
+            door_x = end_x + 1
+            door_y = self.height // 2
+            grid[door_y][door_x] = 0
+            print(f"x: {door_x + 1}, y: {door_y}")
+            return (door_y, door_x + 1)
+        elif direction == 's':
+            door_x = self.width // 2
+            door_y = end_y + 1
+            grid[door_y][door_x] = 0
+            print(f"x: {door_x}, y: {door_y + 1}")
+            return (door_y + 1, door_x)
+        elif direction == 'w':
+            door_x = start_x - 1
+            door_y = self.height // 2
+            grid[door_y][door_x] = 0
+            print(f"x: {door_x - 1}, y: {door_y}")
+            return (door_y, door_x - 1)
+
     
     def walk(self, grid, y, x):
         
@@ -36,12 +94,12 @@ class HuntAndKill:
                 this_y, this_x = neighbour
                 unvisited_neighbours = self.find_neighbours(this_y, this_x, grid, True)
 
-    def hunt(self, grid, count):
+    def hunt(self, count):
 
         if count >= (self.height * self.width):
             return (-1, -1)
 
-        return (randrange(1, self.height, 2), randrange(1, self.width, 2))
+        return (randrange(1, self.height -1, 2), randrange(1, self.width - 1, 2))
 
     def find_neighbours(self, y, x, grid, is_wall=False):
 
