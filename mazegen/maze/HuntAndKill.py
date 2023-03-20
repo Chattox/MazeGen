@@ -13,13 +13,11 @@ class HuntAndKill:
         grid.fill(1)
 
         if self.has_central_room == 'true':
-            self.create_central_room(grid)
+            self.create_central_room(grid, (5, 5), (7, 7))
 
         self.print_maze(grid)
 
-        # curr_y, curr_x = self.set_start_pos(grid)
-        curr_y = 7
-        curr_x = 5
+        curr_y, curr_x = self.set_start_pos(grid)
 
         grid[curr_y][curr_x] = 0
 
@@ -33,51 +31,16 @@ class HuntAndKill:
 
     def set_start_pos(self, grid):
         y, x = (randrange(1, self.height - 1, 2), randrange(1, self.width - 1, 2))
-        if grid[y][x] == 1:
+        if grid[y][x] == 0:
             y, x = self.set_start_pos(grid)
         
         return (y, x)
 
-    def create_central_room(self, grid):
-        start_x = ((self.width - 2) // 5) * 2
-        start_y = ((self.height - 2) // 5) * 2
-        end_x = start_x + ((self.width - 2) // 5)
-        end_y = start_y + ((self.height - 2) // 5)
+    def create_central_room(self, grid, top_left, bottom_right):
 
-        print(f"start x: {start_x} start y: {start_y}")
-        print(f"end x: {end_x} end_y: {end_y}")
-
-        for y in range(start_y, end_y):
-            for x in range(start_x, end_x):
-                print(x, y)
+        for y in range(top_left[1], bottom_right[1] + 1):
+            for x in range(top_left[0], bottom_right[0] + 1):
                 grid[y][x] = 0
-
-        # Pick a side to create an exit
-        # direction = choice(('n', 'e', 's', 'w'))
-
-        # door_x = 0
-        # door_y = 0
-
-        # if direction == 'n':
-        #     door_x = self.width // 2
-        #     door_y = start_y - 1
-        #     grid[door_y][door_x] = 0
-        #     return (door_y - 1, door_x)
-        # elif direction == 'e':
-        #     door_x = end_x + 1
-        #     door_y = self.height // 2
-        #     grid[door_y][door_x] = 0
-        #     return (door_y, door_x + 1)
-        # elif direction == 's':
-        #     door_x = self.width // 2
-        #     door_y = end_y + 1
-        #     grid[door_y][door_x] = 0
-        #     return (door_y + 1, door_x)
-        # elif direction == 'w':
-        #     door_x = start_x - 1
-        #     door_y = self.height // 2
-        #     grid[door_y][door_x] = 0
-        #     return (door_y, door_x - 1)
 
     
     def walk(self, grid, y, x):
@@ -105,14 +68,15 @@ class HuntAndKill:
 
         neighbours = []
 
-        if y > 1 and grid[y - 2][x] == is_wall:
+        # Check all cardinal AND diagonals in 2 cells distance
+        if y > 1 and grid[y - 2][x] == is_wall: # North
             neighbours.append((y - 2, x))
-        if y < self.height - 2 and grid[y + 2][x] == is_wall:
-            neighbours.append((y + 2, x))
-        if x > 1 and grid[y][x - 2] == is_wall:
-            neighbours.append((y, x - 2))
-        if x < self.width - 2 and grid[y][x + 2] == is_wall:
+        if x < self.width - 2 and grid[y][x + 2] == is_wall: # East
             neighbours.append((y, x + 2))     
+        if y < self.height - 2 and grid[y + 2][x] == is_wall: # South
+            neighbours.append((y + 2, x))
+        if x > 1 and grid[y][x - 2] == is_wall: # West
+            neighbours.append((y, x - 2))
 
         shuffle(neighbours)
         return neighbours
