@@ -2,60 +2,79 @@ import numpy as np
 from random import choice, randrange, shuffle
 
 class HuntAndKill:
-    def __init__(self, h, w, has_central_room):
+    def __init__(self, h, w, num_rooms):
         self.height = h
         self.width = w
-        self.has_central_room = has_central_room
+        self.num_rooms = num_rooms
         self.maze = []
+        self.grid = []
 
     def generate(self):
-        grid = np.empty((self.height, self.width), dtype=np.int8)
-        grid.fill(1)
+        self.grid = np.empty((self.height, self.width), dtype=np.int8)
+        self.grid.fill(1)
 
-        if self.has_central_room == 'true':
-            self.create_central_room(grid, (5, 5), (7, 7))
+        if self.num_rooms > 0:
+            self.carve_rooms(self.num_rooms)
 
-        self.print_maze(grid)
+        curr_y, curr_x = self.set_start_pos()
 
-        curr_y, curr_x = self.set_start_pos(grid)
-
-        grid[curr_y][curr_x] = 0
+        self.grid[curr_y][curr_x] = 0
 
         num_trials = 0
         while (curr_y, curr_x) != (-1, -1):
-            self.walk(grid, curr_y, curr_x)
+            self.walk(curr_y, curr_x)
             curr_y, curr_x = self.hunt(num_trials)
             num_trials += 1
 
-        self.maze = grid
+        self.maze = self.grid
 
-    def set_start_pos(self, grid):
+    def set_start_pos(self):
         y, x = (randrange(1, self.height - 1, 2), randrange(1, self.width - 1, 2))
-        if grid[y][x] == 0:
-            y, x = self.set_start_pos(grid)
+        if self.grid[y][x] == 0:
+            y, x = self.set_start_pos()
         
         return (y, x)
 
-    def create_central_room(self, grid, top_left, bottom_right):
+    def carve_rooms(self, num_rooms):
+        rooms = []
+        for room in range(num_rooms):
+            room_height = randrange(3, self.height // 3 + 1, 2)
+            room_width = randrange(3, self.width // 3 + 1, 2)
+            room_start_x = randrange(1, (self.width - room_width) - 1, 2)
+            room_start_y = randrange(1, (self.height - room_height) - 1, 2)
+            room_end_x = room_start_x + room_width
+            room_end_y = room_start_y + room_height
+            while self.has_overlap((room_start_y, room_start_x), (room_end_y, room_end_x)):
+                room_start_x = randrange(1, (self.width - room_width) - 1, 2)
+                room_start_y = randrange(1, (self.height - room_height) - 1, 2)
+                room_end_x = room_start_x + room_width
+                room_end_y = room_start_y + room_height
+            
+            for y in range(room_start_y, room_end_y):
+                for x in range(room_start_x, room_end_x):
+                    self.grid[y, x] = 0
+            rooms.append([(room_start_x, room_start_y), (room_end_x, room_end_y)])
 
-        for y in range(top_left[1], bottom_right[1] + 1):
-            for x in range(top_left[0], bottom_right[0] + 1):
-                grid[y][x] = 0
-
+    def has_overlap(self, top_left, bottom_right):
+        for y in range(top_left[0], bottom_right[0]):
+            for x in range(top_left[1], bottom_right[1]):
+               if self.grid[y, x] == 0:
+                    print('overlap found')
+                    return True
     
-    def walk(self, grid, y, x):
+    def walk(self, y, x):
         
-        if grid[y][x] == 0:
+        if self.grid[y][x] == 0:
             this_y = y
             this_x = x
-            unvisited_neighbours = self.find_neighbours(this_y, this_x, grid, True)
+            unvisited_neighbours = self.find_neighbours(this_y, this_x, True)
 
             while len(unvisited_neighbours) > 0:
                 neighbour = choice(unvisited_neighbours)
-                grid[neighbour[0], neighbour[1]] = 0
-                grid[(neighbour[0] + this_y) // 2, (neighbour[1] + this_x) // 2] = 0
+                self.grid[neighbour[0], neighbour[1]] = 0
+                self.grid[(neighbour[0] + this_y) // 2, (neighbour[1] + this_x) // 2] = 0
                 this_y, this_x = neighbour
-                unvisited_neighbours = self.find_neighbours(this_y, this_x, grid, True)
+                unvisited_neighbours = self.find_neighbours(this_y, this_x, True)
 
     def hunt(self, count):
 
@@ -64,34 +83,34 @@ class HuntAndKill:
 
         return (randrange(1, self.height, 2), randrange(1, self.width, 2))
 
-    def find_neighbours(self, y, x, grid, is_wall=False):
+    def find_neighbours(self, y, x, is_wall=False):
 
         neighbours = []
 
         # Check all cardinal AND diagonals in 2 cells distance
-        if y > 1 and grid[y - 2][x] == is_wall: # North
+        if y > 1 and self.grid[y - 2][x] == is_wall: # North
             neighbours.append((y - 2, x))
-        if x < self.width - 2 and grid[y][x + 2] == is_wall: # East
+        if x < self.width - 2 and self.grid[y][x + 2] == is_wall: # East
             neighbours.append((y, x + 2))     
-        if y < self.height - 2 and grid[y + 2][x] == is_wall: # South
+        if y < self.height - 2 and self.grid[y + 2][x] == is_wall: # South
             neighbours.append((y + 2, x))
-        if x > 1 and grid[y][x - 2] == is_wall: # West
+        if x > 1 and self.grid[y][x - 2] == is_wall: # West
             neighbours.append((y, x - 2))
 
         shuffle(neighbours)
         return neighbours
     
-    def print_maze(self, grid, mark_x=None, mark_y=None):
+    def print_maze(self, mark_x=None, mark_y=None):
         
         for y in range(self.height):
             for x in range(self.width):
                 if(x == mark_x and y == mark_y):
                     print('@', end='')
                 else:
-                    print('#', end='') if grid[y][x] == 1 else print('.', end='')
+                    print('#', end='') if self.grid[y][x] == 1 else print('.', end='')
             print()
     
-    def frames_to_file(self, grid, mark_y=None, mark_x=None):
+    def frames_to_file(self, mark_y=None, mark_x=None):
         f = open('res.txt', 'a')
         frame = ''
         for y in range(self.height):
@@ -99,7 +118,7 @@ class HuntAndKill:
                 if(x == mark_x and y == mark_y):
                     frame += '@'
                 else:
-                    if grid[y][x] == 1:
+                    if self.grid[y][x] == 1:
                         frame += '#'
                     else:
                         frame += '.'
