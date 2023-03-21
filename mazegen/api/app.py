@@ -11,6 +11,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def get_maze():
     """ Return completed maze from given height and width """
-    maze = HuntAndKill(int(request.args['height']), int(request.args['width']))
+    maze = HuntAndKill(int(request.args['height']), int(request.args['width']), int(request.args['numRooms']))
     maze.generate()
     return maze.export_maze()
